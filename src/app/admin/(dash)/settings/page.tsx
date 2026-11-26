@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { CalendarClock, Camera, Database, Plus, Save, Shield, ShieldCheck, Target, Trash2, UserCog } from "lucide-react";
+import { CalendarClock, Camera, Database, KeyRound, Plus, Save, Shield, ShieldCheck, Target, Trash2, UserCog } from "lucide-react";
 import { Badge, Button, Card, CardHeader, Field, Input, Modal, Select, Spinner, Switch, Textarea } from "@/components/ui";
 import { useToast } from "@/components/toast";
 import { useAdmin, useAdminData } from "@/components/admin/admin-context";
@@ -226,6 +226,8 @@ export default function SettingsPage() {
         </>
       )}
 
+      <PasswordCard />
+
       {can("super_admin") && ev.data?.event && (
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
@@ -337,6 +339,40 @@ function AdminsCard() {
           <option value="super_admin">Super admin</option>
         </Select>
         <Button onClick={add} loading={busy} disabled={!f.email}>Add</Button>
+      </div>
+    </Card>
+  );
+}
+
+function PasswordCard() {
+  const toast = useToast();
+  const { email } = useAdmin();
+  const [f, setF] = useState({ current: "", next: "", confirm: "" });
+  const [busy, setBusy] = useState(false);
+  async function save() {
+    if (f.next !== f.confirm) return toast({ kind: "error", title: "New passwords don't match" });
+    setBusy(true);
+    try {
+      await api("/api/admin/password", { method: "POST", body: JSON.stringify({ current: f.current, next: f.next }) });
+      toast({ kind: "success", title: "Password changed", body: "Use the new password next time you sign in." });
+      setF({ current: "", next: "", confirm: "" });
+    } catch (e) {
+      const d = (e as Error & { data?: { issues?: string[] } }).data;
+      toast({ kind: "error", title: (e as Error).message, body: d?.issues?.join(" · ") });
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <Card>
+      <CardHeader title="Your admin password" subtitle={`Signed in as ${email}. Only you know this password — it is never shown or stored in readable form.`} icon={<KeyRound className="h-4 w-4" />} />
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Field label="Current password"><Input type="password" autoComplete="current-password" value={f.current} onChange={(e) => setF({ ...f, current: e.target.value })} /></Field>
+        <Field label="New password" hint="10+ chars, letters and numbers"><Input type="password" autoComplete="new-password" value={f.next} onChange={(e) => setF({ ...f, next: e.target.value })} /></Field>
+        <Field label="Confirm new password"><Input type="password" autoComplete="new-password" value={f.confirm} onChange={(e) => setF({ ...f, confirm: e.target.value })} /></Field>
+      </div>
+      <div className="mt-4 flex justify-end">
+        <Button variant="primary" onClick={save} loading={busy} disabled={!f.current || !f.next}>Change password</Button>
       </div>
     </Card>
   );

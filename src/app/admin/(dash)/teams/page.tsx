@@ -18,8 +18,6 @@ type TeamListRow = TeamRow & {
 };
 
 interface Creds {
-  username: string;
-  password: string;
   join_code: string;
   name?: string;
 }
@@ -39,7 +37,7 @@ export default function TeamsPage() {
 
   const teams = useMemo(() => {
     let t = data?.teams ?? [];
-    if (q) t = t.filter((x) => `${x.name} ${x.team_uid} ${x.username} ${x.join_code} ${x.leader_name}`.toLowerCase().includes(q.toLowerCase()));
+    if (q) t = t.filter((x) => `${x.name} ${x.team_uid} ${x.join_code} ${x.leader_name}`.toLowerCase().includes(q.toLowerCase()));
     if (filter === "flagged") t = t.filter((x) => x.flagged);
     else if (filter !== "all") t = t.filter((x) => x.status === filter);
     return t;
@@ -104,7 +102,7 @@ export default function TeamsPage() {
                   <td className="px-4 py-3">
                     <p className="font-semibold text-slate-100">{t.name}</p>
                     <p className="font-mono text-[11px] text-slate-500">
-                      {t.team_uid} · @{t.username} · <span className="text-cyan">{t.join_code}</span>
+                      {t.team_uid} · code <span className="text-cyan">{t.join_code}</span>
                     </p>
                   </td>
                   <td className="px-4 py-3">
@@ -162,7 +160,7 @@ export default function TeamsPage() {
             </div>
             <p className="mt-4 font-mono text-2xl font-bold tracking-[0.3em] text-neon">{qr.join_code}</p>
             <p className="mt-1 break-all text-xs text-slate-500">{joinUrl(qr.join_code)}</p>
-            <p className="mt-3 text-xs text-slate-500">Scanning opens the login page with the team code filled in. The team still needs its password.</p>
+            <p className="mt-3 text-xs text-slate-500">Scanning logs the phone straight into this team. Keep the QR private to the team.</p>
           </div>
         )}
       </Modal>
@@ -181,7 +179,7 @@ export default function TeamsPage() {
 
 function CreateTeamModal({ open, onClose, onCreated }: { open: boolean; onClose: () => void; onCreated: (c: Creds) => void }) {
   const toast = useToast();
-  const [f, setF] = useState({ name: "", leader_name: "", members: "", username: "", password: "", contact_email: "" });
+  const [f, setF] = useState({ name: "", leader_name: "", members: "", contact_email: "" });
   const [busy, setBusy] = useState(false);
   async function submit() {
     setBusy(true);
@@ -191,7 +189,7 @@ function CreateTeamModal({ open, onClose, onCreated }: { open: boolean; onClose:
         body: JSON.stringify({ ...f, members: f.members.split(",").map((m) => m.trim()).filter(Boolean) }),
       });
       onCreated({ ...r.credentials, name: r.team.name });
-      setF({ name: "", leader_name: "", members: "", username: "", password: "", contact_email: "" });
+      setF({ name: "", leader_name: "", members: "", contact_email: "" });
     } catch (e) {
       toast({ kind: "error", title: (e as Error).message });
     } finally {
@@ -217,10 +215,6 @@ function CreateTeamModal({ open, onClose, onCreated }: { open: boolean; onClose:
         <Field label="Team name"><Input value={f.name} onChange={set("name")} /></Field>
         <Field label="Leader name"><Input value={f.leader_name} onChange={set("leader_name")} /></Field>
         <Field label="Other members" hint="Comma separated"><Input value={f.members} onChange={set("members")} /></Field>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Username" hint="Blank = auto"><Input value={f.username} onChange={set("username")} /></Field>
-          <Field label="Password" hint="Blank = generated"><Input value={f.password} onChange={set("password")} /></Field>
-        </div>
         <Field label="Contact email (optional)"><Input type="email" value={f.contact_email} onChange={set("contact_email")} /></Field>
       </div>
     </Modal>
@@ -230,19 +224,16 @@ function CreateTeamModal({ open, onClose, onCreated }: { open: boolean; onClose:
 function CredentialsModal({ creds, onClose }: { creds: Creds | null; onClose: () => void }) {
   const toast = useToast();
   if (!creds) return null;
-  const text = `HuntX login${creds.name ? ` – ${creds.name}` : ""}\nUsername: ${creds.username}\nTeam code: ${creds.join_code}\nPassword: ${creds.password}\n${joinUrl(creds.join_code)}`;
+  const text = `HuntX${creds.name ? ` – ${creds.name}` : ""}\nTeam code: ${creds.join_code}\nJoin: ${joinUrl(creds.join_code)}`;
   return (
-    <Modal open onClose={onClose} title="Team credentials" footer={<Button variant="primary" onClick={onClose}>Done</Button>}>
-      <p className="mb-4 rounded-xl border border-amber/30 bg-amber/10 p-3 text-xs text-amber">Shown once. Copy or print it now — the password isn&apos;t stored in readable form.</p>
-      <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center">
-        <div className="mx-auto rounded-xl bg-white p-3">
-          <QRCodeSVG value={joinUrl(creds.join_code)} size={140} />
+    <Modal open onClose={onClose} title={creds.name ? `Team code · ${creds.name}` : "Team code"} footer={<Button variant="primary" onClick={onClose}>Done</Button>}>
+      <div className="text-center">
+        <div className="mx-auto inline-block rounded-2xl bg-white p-3">
+          <QRCodeSVG value={joinUrl(creds.join_code)} size={180} />
         </div>
-        <dl className="space-y-2 font-mono text-sm">
-          <div><dt className="hud-label">Username</dt><dd className="text-slate-100">{creds.username}</dd></div>
-          <div><dt className="hud-label">Team code</dt><dd className="text-cyan">{creds.join_code}</dd></div>
-          <div><dt className="hud-label">Password</dt><dd className="text-neon">{creds.password}</dd></div>
-        </dl>
+        <p className="mt-4 hud-label">Team code</p>
+        <p className="mt-1 font-mono text-4xl font-bold tracking-[0.3em] text-neon">{creds.join_code}</p>
+        <p className="mt-2 text-xs text-slate-500">Members type this code on the Join page, or scan the QR. No password needed.</p>
       </div>
       <Button
         className="mt-4 w-full"
@@ -251,7 +242,7 @@ function CredentialsModal({ creds, onClose }: { creds: Creds | null; onClose: ()
           toast({ kind: "success", title: "Copied" });
         }}
       >
-        <Copy className="h-4 w-4" /> Copy all
+        <Copy className="h-4 w-4" /> Copy code & link
       </Button>
     </Modal>
   );
@@ -320,7 +311,7 @@ function TeamDetail({ id, onClose, onChanged, onCreds, toast }: { id: string; on
                 <Button size="sm" onClick={() => act("lock_submissions")}><Lock className="h-3.5 w-3.5" /> Lock submissions</Button>
               )}
               {t.flagged && <Button size="sm" onClick={() => act("unflag")}>Clear flag</Button>}
-              <Button size="sm" onClick={() => act("reset_password")} loading={busy === "reset_password"}><KeyRound className="h-3.5 w-3.5" /> New password</Button>
+              <Button size="sm" onClick={() => act("new_code")} loading={busy === "new_code"} title="Old code stops working"><KeyRound className="h-3.5 w-3.5" /> New team code</Button>
               {t.status === "disabled" ? (
                 <Button size="sm" onClick={() => act("enable")}>Enable team</Button>
               ) : (

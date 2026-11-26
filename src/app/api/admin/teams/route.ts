@@ -40,12 +40,10 @@ const createSchema = z.object({
   name: z.string().trim().min(2).max(48),
   leader_name: z.string().trim().min(2).max(80),
   members: z.array(z.string().trim().min(1).max(80)).max(8).default([]),
-  username: z.string().trim().toLowerCase().regex(/^[a-z0-9_]{3,24}$/).optional().or(z.literal("")),
-  password: z.string().min(8).max(128).optional().or(z.literal("")),
   contact_email: z.string().email().optional().or(z.literal("")),
 });
 
-/** Admin-created team accounts. Credentials are returned ONCE. */
+/** Admin-created team accounts. Teams log in with the returned 6-character code. */
 export const POST = route(async (req) => {
   const { db, event, user } = await requireAdminEvent("organiser");
   const body = await parseBody(req, createSchema);
@@ -53,12 +51,8 @@ export const POST = route(async (req) => {
   const { data: dupName } = await db.from("teams").select("id").eq("event_id", event.id).ilike("name", body.name.replace(/[\\%_]/g, "\\$&")).limit(1);
   if (dupName?.length) throw new HttpError(409, "Team name already exists.");
 
-  const username = body.username || (await availableUsername(db, slugUsername(body.name)));
-  if (body.username) {
-    const { data: taken } = await db.from("teams").select("id").eq("username", username).limit(1);
-    if (taken?.length) throw new HttpError(409, "Username taken.");
-  }
-  const password = body.password || randomPassword();
+  const username = await availableUsername(db, slugUsername(body.name));
+  const password = randomPassword() + randomPassword(); // internal only; teams log in with their code
 
   const { data: created, error: authErr } = await db.auth.admin.createUser({
     email: teamEmail(username),
@@ -93,5 +87,5 @@ export const POST = route(async (req) => {
   ]);
   await db.from("profiles").upsert({ id: created.user.id, team_id: team.id, role: "participant" });
 
-  return json({ team, credentials: { username, password, join_code: team.join_code } }, 201);
+  return json({ team, credentials: { join_code: team.join_code, name: team.name } }, 201);
 });

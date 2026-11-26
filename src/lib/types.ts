@@ -66,6 +66,7 @@ export interface ClueRow {
   unlock_rule: UnlockRule;
   reveal_zone: boolean;
   max_gps_attempts: number | null;
+  image_path?: string | null;
 }
 
 export interface ProgressRow {
@@ -158,6 +159,7 @@ export interface TeamState {
       hint: string | null;
       hint_penalty: number;
       radius_m: number;
+      image_url: string | null;
     };
     unlocked_at: string;
     deadline_at: string | null;

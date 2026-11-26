@@ -4,7 +4,7 @@ import { requireAdminEvent } from "@/lib/server/admin-helpers";
 import { completeActiveClue, syncTeamProgress } from "@/lib/server/progress";
 import { award } from "@/lib/server/scoring";
 import { notify } from "@/lib/server/notify";
-import { randomPassword } from "@/lib/server/codes";
+import { uniqueTeamCodes } from "@/lib/server/codes";
 import type { TeamRow } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -51,7 +51,7 @@ const schema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("unlock_submissions") }),
   z.object({ action: z.literal("unflag") }),
   z.object({ action: z.literal("reset_gps_attempts") }),
-  z.object({ action: z.literal("reset_password") }),
+  z.object({ action: z.literal("new_code") }),
   z.object({
     action: z.literal("adjust_points"),
     points: z.number().int().min(-100000).max(100000).refine((n) => n !== 0, "Cannot be zero"),
@@ -127,12 +127,12 @@ export const PATCH = route<Ctx>(async (req, { params }) => {
     case "rename":
       await set({ name: body.name });
       break;
-    case "reset_password": {
-      if (!team.auth_user_id) throw new HttpError(409, "Team has no login.");
-      const password = randomPassword();
-      const { error } = await db.auth.admin.updateUserById(team.auth_user_id, { password });
-      if (error) throw new HttpError(500, "Could not reset password.");
-      extra = { credentials: { username: team.username, password, join_code: team.join_code } };
+    case "new_code": {
+      // Old code stops working immediately; already-open sessions are signed out.
+      const { join_code } = await uniqueTeamCodes(db);
+      await set({ join_code } as Partial<TeamRow>);
+      if (team.auth_user_id) await db.auth.admin.signOut(team.auth_user_id, "global").catch(() => {});
+      extra = { credentials: { join_code, name: team.name } };
       break;
     }
     case "adjust_points":

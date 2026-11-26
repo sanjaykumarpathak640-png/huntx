@@ -17,6 +17,13 @@ A real-time photography treasure-hunt platform for **IIT Patna**. Teams decode c
 
 ---
 
+## 🔑 How login works
+- **Teams:** type the **6-letter team code** (or scan the team QR). No username or password. New teams register with just a team name and names, then get their code. Organisers can issue a **New team code** at any time, which instantly signs out anyone using the old one.
+- **Organisers:** email + password at `/admin/login`. Only accounts in the `admins` table can enter. Change your password under **Event Settings → Your admin password**.
+
+## 🧩 Managing challenges
+**Admin → Clues:** add, edit, reorder, deactivate or **delete** challenges, attach a **challenge image** (shown to teams only once that clue unlocks), or **Upload CSV** to add many at once (a template download is provided).
+
 ## 1. Architecture
 
 ```

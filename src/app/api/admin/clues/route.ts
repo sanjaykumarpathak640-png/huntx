@@ -19,7 +19,16 @@ export const GET = route(async () => {
     if (p.status === "completed") s.completed++;
     stats.set(p.clue_id, s);
   }
-  return json({ clues: (data ?? []).map((c) => ({ ...c, stats: stats.get(c.id) ?? { active: 0, completed: 0 } })) });
+  const paths = (data ?? []).map((c) => c.image_path).filter(Boolean) as string[];
+  const signed = paths.length ? (await db.storage.from("clue-media").createSignedUrls(paths, 3600)).data ?? [] : [];
+  const urlFor = new Map(signed.map((s) => [s.path, s.signedUrl]));
+  return json({
+    clues: (data ?? []).map((c) => ({
+      ...c,
+      image_url: c.image_path ? urlFor.get(c.image_path) ?? null : null,
+      stats: stats.get(c.id) ?? { active: 0, completed: 0 },
+    })),
+  });
 });
 
 export const POST = route(async (req) => {

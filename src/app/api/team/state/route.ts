@@ -53,6 +53,11 @@ export const GET = route(async () => {
       else if (clue.photo_required && !live) awaiting = "photo";
       else if (clue.unlock_rule === "on_approval") awaiting = "approval";
       else if (clue.unlock_rule === "manual") awaiting = "organiser";
+      let imageUrl: string | null = null;
+      if (clue.image_path) {
+        const { data: signed } = await db.storage.from("clue-media").createSignedUrl(clue.image_path, 15 * 60);
+        imageUrl = signed?.signedUrl ?? null;
+      }
       current = {
         clue: {
           id: clue.id,
@@ -69,6 +74,7 @@ export const GET = route(async () => {
           hint: p.hint_used ? clue.hint : null,
           hint_penalty: clue.hint_penalty,
           radius_m: clue.radius_m,
+          image_url: imageUrl,
         },
         unlocked_at: p.unlocked_at,
         deadline_at: p.deadline_at,

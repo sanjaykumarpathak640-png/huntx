@@ -430,6 +430,12 @@ export function HuntApp() {
               <blockquote className="mt-4 border-l-2 border-neon/60 pl-4 text-lg leading-relaxed text-slate-200">
                 {showAlt && current.clue.body_alt ? current.clue.body_alt : current.clue.body}
               </blockquote>
+              {current.clue.image_url && (
+                <a href={current.clue.image_url} target="_blank" rel="noreferrer" className="mt-4 block overflow-hidden rounded-xl border border-white/10">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={current.clue.image_url} alt="Challenge image" className="max-h-72 w-full object-cover" />
+                </a>
+              )}
               {current.clue.body_alt && (
                 <button onClick={() => setShowAlt((s) => !s)} className="mt-3 inline-flex items-center gap-1.5 text-xs text-cyan hover:underline">
                   <Languages className="h-3.5 w-3.5" /> {showAlt ? "Show original" : current.clue.language === "hi" ? "Show English" : "हिंदी में देखें"}

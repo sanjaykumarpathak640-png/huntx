@@ -459,6 +459,13 @@ grant all privileges on all sequences in schema public to service_role;
 grant select on all tables in schema public to authenticated;
 grant execute on function public.is_admin(), public.my_team_id(), public.my_event_id() to authenticated;
 
+-- HuntX 0002: optional image per clue/challenge (private bucket, served via signed URLs)
+alter table public.clues add column if not exists image_path text;
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('clue-media', 'clue-media', false, 5242880, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do update set public = false;
+
 -- ===== demo event + 4 sample clues =====
 -- Optional demo data. Coordinates are APPROXIMATE points on/near the IIT Patna
 -- Bihta campus — walk the campus and replace them with surveyed coordinates
@@ -474,7 +481,7 @@ with ev as (
     'scheduled',
     true,
     array[
-      'One account per team. Share the login only within your team.',
+      'Each team gets one 6-letter team code. Share it only with your teammates.',
       'Photos must be captured live through the HuntX camera.',
       'Verify your GPS location at each spot before capturing (if required).',
       'Leaving the hunt screen is recorded and may cost points.',

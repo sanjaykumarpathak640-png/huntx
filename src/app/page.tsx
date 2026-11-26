@@ -17,7 +17,7 @@ const STEPS = [
 ];
 
 const DEFAULT_RULES = [
-  "One team account per team. Keep your password within the team.",
+  "Each team gets one 6-letter team code. Share it only with your teammates.",
   "Photos must be captured live through the HuntX camera.",
   "Verify your GPS location at each spot before capturing.",
   "Hints are available but cost points.",

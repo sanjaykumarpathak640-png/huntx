@@ -12,7 +12,7 @@ with ev as (
     'scheduled',
     true,
     array[
-      'One account per team. Share the login only within your team.',
+      'Each team gets one 6-letter team code. Share it only with your teammates.',
       'Photos must be captured live through the HuntX camera.',
       'Verify your GPS location at each spot before capturing (if required).',
       'Leaving the hunt screen is recorded and may cost points.',
