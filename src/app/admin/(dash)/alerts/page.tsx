@@ -50,7 +50,7 @@ export default function AlertsPage() {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex rounded-xl border border-white/10 p-1 text-xs">
+        <div className="flex max-w-full overflow-x-auto rounded-xl border border-white/10 p-1 text-xs">
           {SEV.map((s) => (
             <button key={s} onClick={() => setSev(s)} className={cn("rounded-lg px-3 py-1.5 capitalize", sev === s ? "bg-white/10 text-white" : "text-slate-500")}>
               {s}

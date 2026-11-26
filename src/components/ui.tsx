@@ -47,7 +47,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
 /* ---------- Card ---------- */
 export function Card({ className, children, ...p }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("glass p-5", className)} {...p}>
+    <div className={cn("glass min-w-0 p-4 sm:p-5", className)} {...p}>
       {children}
     </div>
   );
@@ -109,7 +109,7 @@ export const statusTone: Record<string, Tone> = {
 
 /* ---------- Inputs ---------- */
 const fieldBase =
-  "w-full rounded-xl border border-white/10 bg-ink-900/80 px-3.5 text-sm text-slate-100 placeholder:text-slate-600 transition focus:border-neon/50 focus:outline-none focus:ring-2 focus:ring-neon/20 disabled:opacity-50";
+  "w-full rounded-xl border border-white/10 bg-ink-900/80 px-3.5 text-base sm:text-sm text-slate-100 placeholder:text-slate-600 transition focus:border-neon/50 focus:outline-none focus:ring-2 focus:ring-neon/20 disabled:opacity-50";
 
 export const Input = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(function Input({ className, ...p }, ref) {
   return <input ref={ref} className={cn(fieldBase, "h-11", className)} {...p} />;
@@ -211,7 +211,7 @@ export function Modal({
 /* ---------- Misc ---------- */
 export function Stat({ label, value, sub, icon, accent = "text-slate-100", className }: { label: string; value: React.ReactNode; sub?: React.ReactNode; icon?: React.ReactNode; accent?: string; className?: string }) {
   return (
-    <div className={cn("glass p-4", className)}>
+    <div className={cn("glass min-w-0 p-4", className)}>
       <div className="flex items-center justify-between">
         <span className="hud-label">{label}</span>
         {icon && <span className="text-slate-600">{icon}</span>}

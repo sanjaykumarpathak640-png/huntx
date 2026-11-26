@@ -96,15 +96,15 @@ export default function CluesPage() {
           <h1 className="mt-1 font-display text-2xl font-bold text-white">Clues</h1>
           <p className="mt-1 text-xs text-slate-500">Participants only ever receive their current clue — never coordinates, answers or future clues.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="grid w-full grid-cols-3 gap-2 sm:flex sm:w-auto [&>button]:whitespace-nowrap [&>button]:px-2 sm:[&>button]:px-4">
           <Button variant="ghost" onClick={() => setShowMap((s) => !s)}>
-            <MapPin className="h-4 w-4" /> {showMap ? "Hide map" : "Show map"}
+            <MapPin className="h-4 w-4" /> {showMap ? "Map" : "Map"}
           </Button>
           <Button onClick={() => setImporting(true)}>
-            <FileUp className="h-4 w-4" /> Upload CSV
+            <FileUp className="h-4 w-4" /> CSV
           </Button>
           <Button variant="primary" onClick={() => setEditing(empty())}>
-            <Plus className="h-4 w-4" /> New challenge
+            <Plus className="h-4 w-4" /> New
           </Button>
         </div>
       </div>

@@ -69,7 +69,7 @@ export default function TeamsPage() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, ID, code, leader…" className="pl-9" />
         </div>
-        <div className="flex rounded-xl border border-white/10 p-1 text-xs">
+        <div className="flex max-w-full overflow-x-auto rounded-xl border border-white/10 p-1 text-xs">
           {(["all", "active", "flagged", "finished", "disqualified"] as const).map((f) => (
             <button key={f} onClick={() => setFilter(f)} className={cn("rounded-lg px-3 py-1.5 capitalize", filter === f ? "bg-white/10 text-white" : "text-slate-500")}>
               {f}
@@ -83,7 +83,34 @@ export default function TeamsPage() {
       ) : teams.length === 0 ? (
         <Empty icon={<Users className="h-10 w-10" />} title="No teams" body="Create teams in advance, or open registration in Event Settings." />
       ) : (
-        <Card className="overflow-x-auto p-0">
+        <>
+        <ul className="space-y-2 md:hidden">
+          {teams.map((t) => (
+            <li key={t.id} className="glass p-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-slate-100">{t.name}</p>
+                  <p className="font-mono text-[11px] text-slate-500">
+                    {t.team_uid} · code <span className="text-cyan">{t.join_code}</span>
+                  </p>
+                </div>
+                <span className="font-display text-lg font-semibold tabular-nums text-neon">{t.score}</span>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-1 text-xs text-slate-400">
+                <Badge tone={statusTone[t.status]}>{t.status}</Badge>
+                {t.flagged && <Badge tone="danger">flagged</Badge>}
+                {t.submissions_locked && <Badge tone="amber">locked</Badge>}
+                {t.warning_count > 0 && <Badge tone="amber">⚠ {t.warning_count}</Badge>}
+                <span className="ml-1">{t.current_clue ? `Clue ${t.current_clue.number}${t.current_clue.verified ? " ✓" : ""}` : `${t.completed} done`}</span>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <Button size="sm" variant="ghost" onClick={() => setQr(t)}><QrCode className="h-4 w-4" /> Code / QR</Button>
+                <Button size="sm" variant="secondary" onClick={() => setDetail(t.id)}><Eye className="h-4 w-4" /> Manage</Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <Card className="hidden overflow-x-auto p-0 md:block">
           <table className="w-full min-w-[860px] text-sm">
             <thead>
               <tr className="hud-label border-b border-white/5 text-left">
@@ -140,6 +167,7 @@ export default function TeamsPage() {
             </tbody>
           </table>
         </Card>
+        </>
       )}
 
       <CreateTeamModal

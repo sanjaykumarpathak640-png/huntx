@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: { default: "HuntX – Smart Campus Treasure Hunt", template: "%s · HuntX" },
   description: "Decode cryptic clues, reach the spot, verify GPS and capture the shot. The photography treasure hunt of IIT Patna.",
   applicationName: "HuntX",
+  icons: { icon: "/favicon.png", apple: "/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "HuntX", statusBarStyle: "black-translucent" },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {

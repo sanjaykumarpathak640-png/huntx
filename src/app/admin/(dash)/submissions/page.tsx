@@ -44,7 +44,7 @@ export default function SubmissionsPage() {
         )}
       </div>
 
-      <div className="flex flex-wrap rounded-xl border border-white/10 p-1 text-xs">
+      <div className="flex max-w-full overflow-x-auto whitespace-nowrap rounded-xl border border-white/10 p-1 text-xs">
         {FILTERS.map((f) => (
           <button key={f} onClick={() => setFilter(f)} className={cn("rounded-lg px-3 py-1.5 capitalize", filter === f ? "bg-white/10 text-white" : "text-slate-500")}>
             {f.replace("_", " ")}
@@ -57,7 +57,7 @@ export default function SubmissionsPage() {
       ) : subs.length === 0 ? (
         <Empty icon={<Camera className="h-10 w-10" />} title={`No ${filter.replace("_", " ")} submissions`} />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
           {subs.map((s) => (
             <button key={s.id} onClick={() => setOpen(s)} className="glass group overflow-hidden text-left transition hover:border-neon/30">
               <div className="relative aspect-[4/3] bg-ink-900">
