@@ -446,3 +446,13 @@ revoke all on function public.increment_team_warning(uuid) from public, anon, au
 revoke all on function public.reorder_clues(uuid, uuid[]) from public, anon, authenticated;
 grant execute on function public.increment_team_warning(uuid) to service_role;
 grant execute on function public.reorder_clues(uuid, uuid[]) to service_role;
+
+-- =====================================================================
+-- API role grants (newer Supabase projects don't auto-expose new tables).
+-- RLS above still decides which rows each user can see.
+-- =====================================================================
+grant usage on schema public to anon, authenticated, service_role;
+grant all privileges on all tables in schema public to service_role;
+grant all privileges on all sequences in schema public to service_role;
+grant select on all tables in schema public to authenticated;
+grant execute on function public.is_admin(), public.my_team_id(), public.my_event_id() to authenticated;
